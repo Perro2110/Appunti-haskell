@@ -95,7 +95,7 @@ maxN d c m (a:b) | m < a      = maxN (c+1) (c+1) a b
 
 
 iMaxN :: (Ord t, Num t) => Int -> [t] -> t
-iMaxN i l = maxN 0 0 (-999) (take i l)             
+iMaxN i l = maxN 0 0 (-42) (take i l)             
 
 
 flipAt :: Int -> [a] -> [a]
