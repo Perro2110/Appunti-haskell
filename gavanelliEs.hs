@@ -29,7 +29,6 @@ concatena a [] = a
 concatena [] a = a
 concatena (a:b) c = a:concatena b c
 
-
 andlist :: [Bool] -> Bool
 andlist [] = True 
 andlist (a:b)   | a          = andlist b 
