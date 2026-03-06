@@ -54,6 +54,7 @@ elin :: Int -> [Int] -> Bool
 elin a [] = False
 elin a (h:t)    | a == h    = True 
                 | otherwise = elin a t 
+
 elemento :: Int -> [Int] -> Int
 elemento 0 (x:_)  = x
 elemento n (_:xs) = elemento (n - 1) xs
