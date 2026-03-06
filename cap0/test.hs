@@ -245,8 +245,6 @@ indovinoIlNumero n | n < f     = "nop, il numero da indovinare e maggiore  !!"
                      where f = 19
 
 
-
-
-
-
-
+Mycount :: List -> Int
+Mycount [] = 0 
+Mycount [a|tail] = Mycount[tail] + 1 
