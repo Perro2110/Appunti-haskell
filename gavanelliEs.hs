@@ -36,7 +36,29 @@ andlist [] = True
 andlist (a:b)   | a          = andlist b 
                 | otherwise  = False
 
-
+ispos :: [Int] -> Bool
 ispos [] = True 
 ispos (a:b) | a >= 0         = ispos b 
             | otherwise      = False
+
+ispos2 :: [Int] -> Bool
+ispos2 [] = True
+ispos2 a | head(a) > 0 = ispos2 (tail(a))
+         | otherwise   = False
+
+ispos3 :: [Int] -> Bool
+ispos3 a = if head a > 0 then ispos3 (tail a)
+           else False
+
+elin :: Int -> [Int] -> Bool
+elin a [] = False
+elin a (h:t)    | a == h    = True 
+                | otherwise = elin a t 
+elemento :: Int -> [Int] -> Int
+elemento 0 (x:_)  = x
+elemento n (_:xs) = elemento (n - 1) xs
+
+elementoneg :: Int -> [Int] -> Int
+elementoneg 0 (x:_)  = x
+elementoneg n a | n > 0     = elementoneg (n - 1) tail(a)
+                | otherwise = elementoneg (-n) tail(a)
