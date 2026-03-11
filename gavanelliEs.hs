@@ -1,11 +1,11 @@
-double :: int -> int 
+double :: Int -> Int 
 double x = x + x
 
 quadruple :: Int -> Int
 quadruple x = double(double x)
 
 mfactorial :: Int -> Int
-mfactorial n = foldr (*)1[1..n]
+mfactorial n = foldr (*) 1 [1..n]
 
 last1 :: [a] -> a 
 last1 a = head(reverse(a))
@@ -17,7 +17,7 @@ last3 :: [a] -> a
 last3 (a:b) | (length b) /= 0 = last3 b
             | otherwise       = a
 
-last4 :: [a] ->a  
+last4 :: [a] -> a  
 last4 [a]   = a
 last4 (a:b) = last4 b 
 
@@ -25,9 +25,8 @@ lengthh []    = 0
 lengthh (a:b) = 1 + lengthh b
 
 concatena :: [a] -> [a] -> [a]
-concatena a [] = a
-concatena [] a = a
-concatena (a:b) c = a:concatena b c
+concatena [] b    = b
+concatena (a:b) c = a : concatena b c
 
 concatenaTutte :: [[a]] -> [a]
 concatenaTutte [] = []
@@ -49,6 +48,7 @@ ispos2 a | head(a) > 0 = ispos2 (tail(a))
          | otherwise   = False
 
 ispos3 :: [Int] -> Bool
+ispos3 [] = True
 ispos3 a = if head a > 0 then ispos3 (tail a) else False
 
 elin :: Int -> [Int] -> Bool
@@ -119,17 +119,14 @@ lunghezze (a:b) = (length a) : lunghezze b
 lunghezzeconmappa :: [[a]] -> [Int]
 lunghezzeconmappa a = map (\x -> length x) a
 
-
 positivi :: [Int] -> [Int]
 positivi [] = []
 positivi (a:b) 
     | a > 0     = a : positivi b
     | otherwise = positivi b
 
-
 positivii :: [Int] -> [Int]
-positivii a = filter (\ x -> x > 0) a
-
+positivii a = filter (\x -> x > 0) a
 
 corte :: [[Char]] -> [[Char]]
 corte [] = []
@@ -138,7 +135,7 @@ corte (a:b)
     | otherwise      = corte b
 
 cortee :: [[Char]] -> [[Char]]
-cortee a = filter (\ x -> (length x) > 4) a
+cortee a = filter (\x -> length x < 4) a
 
 inn :: Char -> [Char] -> Bool
 inn _ [] = False
@@ -150,8 +147,15 @@ vocali :: [Char] -> [Char]
 vocali [] = []
 vocali (a:b) 
     | inn a "aeiou" = a : vocali b
-    | otherwise    = vocali b
+    | otherwise     = vocali b
 
+volaiconfilter :: [Char] -> [Char]
+volaiconfilter a = filter (\x -> inn x "aeiou") a
 
-vocalii:: [Char] -> [Char]
-vocalii a = filter(\ x -> inn x "aeiou")
+quadMat :: [[Int]] -> [[Int]]
+quadMat [] = []
+quadMat a = map(\x -> map(\y -> y * y) x) a 
+
+eclama :: [String] -> [String]
+eclama [] = []
+eclama (a:b) = reverse('!':reverse(a)):eclama b
