@@ -98,3 +98,23 @@ cypher2 :: [Char] -> Int -> [Char]
 cypher2 [] n = []
 cypher2 (a:b) n = nsucc a n : cypher2 b n
 
+quadList :: [Int] -> [Int]
+quadList [] = []
+quadList (a:b) = a*a : quadList b
+
+qadListConMap :: [Int] -> [Int]
+qadListConMap a = map (\x -> x*x) a
+
+acronimo :: [String] -> [Char]
+acronimo [] = []
+acronimo (a:b) = head a : acronimo b
+
+acronimoqithmap :: [String] -> [Char]
+acronimoqithmap a = map (\x -> head x) a
+
+lunghezze :: [a] -> [Int]
+lunghezze [] = []
+lunghezze (a:b) = length a : lunghezze b
+
+lunghezzeconmappa :: [a] -> [Int]
+lunghezzeconmappa a = map (\x -> length x) a
