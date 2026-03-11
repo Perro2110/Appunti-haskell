@@ -29,6 +29,10 @@ concatena a [] = a
 concatena [] a = a
 concatena (a:b) c = a:concatena b c
 
+concatenaTutte :: [[a]] -> [a]
+concatenaTutte [] = []
+concatenaTutte (a:b) = a ++ concatenaTutte b
+
 andlist :: [Bool] -> Bool
 andlist [] = True 
 andlist (a:b)   | a          = andlist b 
@@ -59,3 +63,38 @@ elemento n (_:xs) = elemento (n - 1) xs
 inverti :: [a] -> [a]
 inverti [] = []
 inverti (l:t) = inverti t ++ [l]
+
+addVect :: (Num a) => (a, a) -> (a, a) -> (a, a)
+addVect a b = (fst a + fst b , snd a + snd b) 
+
+abs :: Int -> Int
+abs n | n < 0     = -n
+      | otherwise = n
+
+safetail :: [a] -> [a]
+safetail [] = []
+safetail (a:b) = b
+
+or :: Bool -> Bool -> Bool
+or True _ = True 
+or _ True = True 
+or _ _ = False 
+
+orInteligente :: Bool -> Bool -> Bool
+orInteligente False False = False
+orInteligente _ _ = True
+
+and :: Bool -> Bool -> Bool
+and True True = True 
+and _ _ = False 
+
+nsucc :: Char -> Int -> Char
+nsucc c n = toEnum (fromEnum c + n)
+
+cypher :: [Char] -> Int -> [Char]
+cypher a num = map (\x -> nsucc x num) a 
+
+cypher2 :: [Char] -> Int -> [Char]
+cypher2 [] n = []
+cypher2 (a:b) n = nsucc a n : cypher2 b n
+
