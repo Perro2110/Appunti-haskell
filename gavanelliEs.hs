@@ -1,4 +1,4 @@
-double :: Int -> Int 
+double :: int -> int 
 double x = x + x
 
 quadruple :: Int -> Int
@@ -112,9 +112,46 @@ acronimo (a:b) = head a : acronimo b
 acronimoqithmap :: [String] -> [Char]
 acronimoqithmap a = map (\x -> head x) a
 
-lunghezze :: [a] -> [Int]
+lunghezze :: [[a]] -> [Int]
 lunghezze [] = []
-lunghezze (a:b) = length a : lunghezze b
+lunghezze (a:b) = (length a) : lunghezze b
 
-lunghezzeconmappa :: [a] -> [Int]
+lunghezzeconmappa :: [[a]] -> [Int]
 lunghezzeconmappa a = map (\x -> length x) a
+
+
+positivi :: [Int] -> [Int]
+positivi [] = []
+positivi (a:b) 
+    | a > 0     = a : positivi b
+    | otherwise = positivi b
+
+
+positivii :: [Int] -> [Int]
+positivii a = filter (\ x -> x > 0) a
+
+
+corte :: [[Char]] -> [[Char]]
+corte [] = []
+corte (a:b) 
+    | (length a) < 4 = a : corte b
+    | otherwise      = corte b
+
+cortee :: [[Char]] -> [[Char]]
+cortee a = filter (\ x -> (length x) > 4) a
+
+inn :: Char -> [Char] -> Bool
+inn _ [] = False
+inn x (a:b) 
+    | x == a    = True
+    | otherwise = inn x b
+
+vocali :: [Char] -> [Char]
+vocali [] = []
+vocali (a:b) 
+    | inn a "aeiou" = a : vocali b
+    | otherwise    = vocali b
+
+
+vocalii:: [Char] -> [Char]
+vocalii a = filter(\ x -> inn x "aeiou")
