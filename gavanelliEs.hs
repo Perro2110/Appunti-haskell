@@ -159,3 +159,12 @@ quadMat a = map(\x -> map(\y -> y * y) x) a
 eclama :: [String] -> [String]
 eclama [] = []
 eclama (a:b) = reverse('!':reverse(a)):eclama b
+
+pollo :: [String] -> [String]
+pollo a = map (\x -> reverse('!':reverse(x))) a
+
+verificaPari :: [Int] -> [Bool]
+verificaPari a = map (\ x -> mod x 2 == 0) a
+
+incrList :: [Int] -> [Int]
+incrList a = map (\x -> x + 1) a
