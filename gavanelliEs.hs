@@ -203,3 +203,6 @@ earthGravitySurface = earthGravity 6371000
 log2 :: Float -> Float
 log2 = logBase 2
 
+-- Sections
+rec :: Float -> Float
+rec = (1/)
