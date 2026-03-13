@@ -189,9 +189,10 @@ greaterThan5 = filter (>5)
 -- Write the function gravity that, given a mass
 -- m1, a distance d, and a mass m2, computes the gravitational force
 gravity :: Float -> Float -> Float -> Float  
-gravity m1 m2 d = ((6.67 * 1/10^(11)) * (m1 * m2)) / (d * d)
+gravity m1 d m2 = ((6.67 * 1/10^(11)) * (m1 * m2)) / (d * d)
 -- Write the function earthGravity that, given a mass and a distance, computes 
 -- the gravitational force of the Earth on the mass
+earthGravity :: Float -> Float -> Float 
 earthGravity = gravity (5.972 * 10^24)
 
 -- Write a function earthGravitySurface that
@@ -199,3 +200,5 @@ earthGravity = gravity (5.972 * 10^24)
 -- the Earth
 earthGravitySurface = earthGravity 6371000
 
+log2 :: Float -> Float
+log2 = logBase 2
