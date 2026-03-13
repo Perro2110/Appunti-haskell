@@ -168,3 +168,34 @@ verificaPari a = map (\ x -> mod x 2 == 0) a
 
 incrList :: [Int] -> [Int]
 incrList a = map (\x -> x + 1) a
+
+-- Il currying in Haskell è il meccanismo per cui ogni funzione accetta un solo
+--  argomento alla volta, restituendo una nuova funzione per ogni argomento 
+-- successivo.
+
+-- Moltiplicazione
+multiply :: Int -> Int -> Int
+multiply x y = x * y
+
+double2 = multiply 2
+triple2 = multiply 3
+
+-- Con le funzioni di lista
+addOne = map (+1)
+
+greaterThan5 = filter (>5)
+
+-- provo a riscrivere gravity usando il currying
+-- Write the function gravity that, given a mass
+-- m1, a distance d, and a mass m2, computes the gravitational force
+gravity :: Float -> Float -> Float -> Float  
+gravity m1 m2 d = ((6.67 * 1/10^(11)) * (m1 * m2)) / (d * d)
+-- Write the function earthGravity that, given a mass and a distance, computes 
+-- the gravitational force of the Earth on the mass
+earthGravity = gravity (5.972 * 10^24)
+
+-- Write a function earthGravitySurface that
+-- computes the weight of a mass on the surface of
+-- the Earth
+earthGravitySurface = earthGravity 6371000
+
