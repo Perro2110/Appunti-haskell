@@ -206,3 +206,84 @@ log2 = logBase 2
 -- Sections
 rec :: Float -> Float
 rec = (1/)
+
+-- uso della zip
+
+corrispondenze listaA listaB = filter (\(x, y) -> x == y) (zip listaA listaB)
+
+
+-------------------------------------------------------------------------------
+-- foldr (associativita a destra) e foldl 
+-------------------------------------------------------------------------------
+
+-- sum []    = 0  
+-- sum (a:b) = a + b 
+
+-- prod []    = 1  
+-- prod (a:b) = a * b 
+
+foldrr f x [] = x 
+foldrr f x (a:b) = f a (foldrr f x b)
+
+sumf a = foldr (+) 0 a 
+
+prod a = foldr (*) 1 a
+
+----------------
+s :: [Int] -> Int
+s = foldr (+) 0
+
+p :: [Int] -> Int
+p = foldr (*) 1
+
+o :: [Bool] -> Bool
+o = foldr (||) False
+
+aa :: [Bool] -> Bool
+aa = foldr (&&) True
+
+--                         x prende elemento a 
+--                           n prende lo 0 
+lengthfoldosa a = foldr (\ x n -> n + 1) 0 a
+
+--  Vocali
+vocalii :: [Char] -> Int 
+vocalii a = foldr (\ x n -> if (elem x "aeiou") then n + 1 else n) 0 a
+
+
+checckers_1 :: [Char] -> Bool
+checckers_1 a 
+            | (foldr (\ x n -> n + 1) 0 a) > 15 = True 
+            | otherwise = False  
+
+
+checckers_2 :: [Char] -> Bool
+checckers_2 a 
+            | (foldr (\ x n -> if (elem x ['A'..'Z']) then n + 1 else n) 0 a) > 1 = True 
+            | otherwise = False 
+
+checckers_3 :: [Char] -> Bool
+checckers_3 a 
+            | (foldr (\ x n -> if (elem x ['a'..'z']) then n + 1 else n) 0 a) > 1 = True 
+            | otherwise = False 
+
+checckers_4 :: [Char] -> Bool
+checckers_4 a 
+            | (foldr (\ x n -> if (elem x ['1'..'9']) then n + 1 else n) 0 a) > 1 = True 
+            | otherwise = False 
+            
+funandmap [] b = True
+funandmap (a:at) b = a b && funandmap at b 
+
+checker a = funandmap [checckers_4,checckers_3,checckers_2,checckers_1] a
+
+
+checker_lite a 
+    | ((foldr (\ x n -> n + 1) 0 a) > 15) && (foldr (\ x n -> elem x ['a'..'z'] || n) False a) = True 
+    | otherwise = False
+
+
+checker_litee a =  ((foldr (\ x n -> n + 1) 0 a) > 15) &&
+                   (foldr (\ x n -> elem x ['a'..'z'] || n) False a) &&
+                   (foldr (\ x n -> elem x ['A'..'Z'] || n) False a) &&
+                   (foldr (\ x n -> elem x ['0'..'9'] || n) False a) 
