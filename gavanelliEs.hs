@@ -250,6 +250,11 @@ lengthfoldosa a = foldr (\ x n -> n + 1) 0 a
 vocalii :: [Char] -> Int 
 vocalii a = foldr (\ x n -> if (elem x "aeiou") then n + 1 else n) 0 a
 
+-- Controllo password
+-- 1. Lunghezza maggiore di 15
+-- 2. Almeno una lettera minuscola
+-- 3. Almeno una lettera maiuscola
+-- 4. Almeno un numero
 
 checckers_1 :: [Char] -> Bool
 checckers_1 a 
@@ -263,26 +268,31 @@ checckers_2 a
             | otherwise = False 
 
 checckers_3 :: [Char] -> Bool
+checckers_3 :: [Char] -> Bool
 checckers_3 a 
             | (foldr (\ x n -> if (elem x ['a'..'z']) then n + 1 else n) 0 a) > 1 = True 
             | otherwise = False 
 
 checckers_4 :: [Char] -> Bool
+checckers_4 :: [Char] -> Bool
 checckers_4 a 
             | (foldr (\ x n -> if (elem x ['1'..'9']) then n + 1 else n) 0 a) > 1 = True 
             | otherwise = False 
-            
+
+funandmap :: [(a -> Bool)] -> a -> Bool           
 funandmap [] b = True
 funandmap (a:at) b = a b && funandmap at b 
 
+checker :: [Char] -> Bool
 checker a = funandmap [checckers_4,checckers_3,checckers_2,checckers_1] a
 
-
+checker_lite :: [Char] -> Bool
 checker_lite a 
     | ((foldr (\ x n -> n + 1) 0 a) > 15) && (foldr (\ x n -> elem x ['a'..'z'] || n) False a) = True 
     | otherwise = False
 
 
+checker_litee :: [Char] -> Bool
 checker_litee a =  ((foldr (\ x n -> n + 1) 0 a) > 15) &&
                    (foldr (\ x n -> elem x ['a'..'z'] || n) False a) &&
                    (foldr (\ x n -> elem x ['A'..'Z'] || n) False a) &&
