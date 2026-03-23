@@ -213,7 +213,7 @@ corrispondenze listaA listaB = filter (\(x, y) -> x == y) (zip listaA listaB)
 
 
 -------------------------------------------------------------------------------
--- foldr (associativita a destra) e foldl 
+--                 foldr (associativita a destra) e foldl 
 -------------------------------------------------------------------------------
 
 -- sum []    = 0  
@@ -297,3 +297,23 @@ checker_litee a =  ((foldr (\ x n -> n + 1) 0 a) > 15) &&
                    (foldr (\ x n -> elem x ['a'..'z'] || n) False a) &&
                    (foldr (\ x n -> elem x ['A'..'Z'] || n) False a) &&
                    (foldr (\ x n -> elem x ['0'..'9'] || n) False a) 
+
+--------------------------------------------------------------------------------
+--                  foldl (associatività a sinistra)
+--------------------------------------------------------------------------------
+
+foldll f v [] = v 
+foldll f v (x:xs) = foldll f (f v x) xs
+
+
+-- notice difference between foldr and foldl
+
+-- FOLD (+) 0 [1,2,3]
+
+foldR f x [] = x 
+foldR f x (a:b) = f a (foldR f x b)
+-- 1+(2+(3+0)) = 6
+
+foldL f v [] = v
+foldL f v (x:xs) = foldL f (f v x) xs
+-- ((0+1)+2)+3 = 6 
