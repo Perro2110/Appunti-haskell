@@ -1,7 +1,7 @@
 # 📘 Haskell — Appunti e Concetti Fondamentali
 
-Spiegazioni e esempi di codice per i concetti chiave di Haskell.
-Codice presente in conoscenze.hs
+Riassunto spiegazioni e esempi di codice per i concetti chiave di Haskell.
+Codice completo presente in conoscenze.hs
 
 ---
 
