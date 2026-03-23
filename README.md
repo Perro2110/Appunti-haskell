@@ -1,6 +1,7 @@
 # 📘 Haskell — Appunti e Concetti Fondamentali
 
-Questo documento raccoglie i concetti appresi finora in Haskell, con esempi tratti dal codice scritto durante le esercitazioni.
+Spiegazioni e esempi di codice per i concetti chiave di Haskell.
+Codice presente in conoscenze.hs
 
 ---
 
@@ -362,12 +363,12 @@ checker_litee a =
 
 ```
 Haskell è un linguaggio funzionale puro dove:
-  ✔ Tutto è una funzione
-  ✔ Non ci sono variabili mutabili
-  ✔ La ricorsione sostituisce i cicli
-  ✔ Il pattern matching rende il codice leggibile
-  ✔ Il currying permette l'applicazione parziale
-  ✔ I tipi garantiscono correttezza a compile-time
-  ✔ foldr/foldl riducono liste a valori con piena flessibilità
-  ✔ zip permette di lavorare su coppie di liste in parallelo
+  - Tutto è una funzione
+  - Non ci sono variabili mutabili
+  - La ricorsione sostituisce i cicli
+  - Il pattern matching rende il codice leggibile
+  - Il currying permette l'applicazione parziale
+  - I tipi garantiscono correttezza a compile-time
+  - foldr/foldl riducono liste a valori con piena flessibilità
+  - zip permette di lavorare su coppie di liste in parallelo
 ```
