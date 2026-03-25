@@ -84,9 +84,9 @@ orInteligente :: Bool -> Bool -> Bool
 orInteligente False False = False
 orInteligente _ _ = True
 
-and :: Bool -> Bool -> Bool
-and True True = True 
-and _ _ = False 
+-- and :: Bool -> Bool -> Bool
+-- and True True = True 
+-- and _ _ = False 
 
 nsucc :: Char -> Int -> Char
 nsucc c n = toEnum (fromEnum c + n)
@@ -267,13 +267,13 @@ checckers_2 a
             | (foldr (\ x n -> if (elem x ['A'..'Z']) then n + 1 else n) 0 a) > 1 = True 
             | otherwise = False 
 
-checckers_3 :: [Char] -> Bool
+
 checckers_3 :: [Char] -> Bool
 checckers_3 a 
             | (foldr (\ x n -> if (elem x ['a'..'z']) then n + 1 else n) 0 a) > 1 = True 
             | otherwise = False 
 
-checckers_4 :: [Char] -> Bool
+
 checckers_4 :: [Char] -> Bool
 checckers_4 a 
             | (foldr (\ x n -> if (elem x ['1'..'9']) then n + 1 else n) 0 a) > 1 = True 
@@ -317,3 +317,47 @@ foldR f x (a:b) = f a (foldR f x b)
 foldL f v [] = v
 foldL f v (x:xs) = foldL f (f v x) xs
 -- ((0+1)+2)+3 = 6 
+
+--------------------------------------------------------------------------------
+--- Comongo le funzioni cazzo 
+--------------------------------------------------------------------------------
+
+oddd :: Int -> Bool
+oddd = not . even
+
+
+zipWithh :: (a -> b -> c) -> [a] -> [b] -> [c]
+zipWithh f [] a = [] 
+zipWithh f a [] = [] 
+zipWithh f (a:b) (c:d) = f a c : zipWithh f b d 
+
+-- returna se ordinato usando zipWith
+-- [1,2,3]
+-- [2,3]
+ordinato :: (Ord a) => [a] -> Bool
+ordinato a = all (\ x -> x == True) (zipWith (<=) a (tail a))
+
+otherordinato :: (Ord a) => [a] -> Bool
+otherordinato a = and (zipWith (<=) a (tail a))
+
+
+
+maxff f [] a = a 
+maxff f (x:xs) a | f x >= a  = maxff f xs x   
+                 | otherwise = maxff f xs a 
+
+-- foldrr f x [] = x 
+-- foldrr f x (a:b) = f a (foldrr f x b)
+
+maxfff :: Ord a => (t -> a) -> [t] -> t
+maxfff f (x:xs) = foldr (\a b -> if f a >= f b then a else b) x xs
+
+
+maxzip f x = fst (foldr1 (\a b -> if snd a >= snd b then a else b) (zip x (map f x)))
+
+remdump :: Eq a => [a] -> [a]
+remdump [] = []
+remdump (a:b) = a : remdump (filter (\x -> x /= a) b)
+
+
+pitagorica n = [[x*y | x <- [1..n] ]| y <- [1..n]]
