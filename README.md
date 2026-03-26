@@ -140,18 +140,31 @@ vocali a = filter (\x -> inn x "aeiou") a
 ```
 
 ### `foldr` — riduzione da destra
-Riduce una lista a un singolo valore applicando una funzione da destra. Struttura: `foldr f valore_iniziale lista`.
+
+Riduce una lista a un singolo valore applicando una funzione **da destra**. Struttura: `foldr f valore_iniziale lista`.
+
+**Come funziona internamente:**
 
 ```haskell
--- Definizione manuale
 foldrr f x []    = x
 foldrr f x (a:b) = f a (foldrr f x b)
+```
 
--- Esempi
+La ricorsione scende fino in fondo alla lista **prima** di applicare qualsiasi operazione. Il valore iniziale è l'argomento più a destra dell'intera espressione:
+
+```
+foldr (+) 0 [1,2,3]
+  → 1 + (foldr (+) 0 [2,3])
+  → 1 + (2 + (foldr (+) 0 [3]))
+  → 1 + (2 + (3 + 0))          ← si costruisce partendo dal fondo
+  → 6
+```
+
+Generalizzando: `foldr f z [a,b,c]` diventa `f a (f b (f c z))`.
+
+```haskell
 sumf a = foldr (+) 0 a       -- somma
 prod a = foldr (*) 1 a       -- prodotto
-
--- foldr (+) 0 [1,2,3] → 1+(2+(3+0)) = 6  (associatività a DESTRA)
 
 -- Contare elementi
 lengthFold a = foldr (\ x n -> n + 1) 0 a
@@ -162,14 +175,40 @@ vocalii a = foldr (\ x n -> if (elem x "aeiou") then n + 1 else n) 0 a
 ```
 
 ### `foldl` — riduzione da sinistra
-Come `foldr` ma accumula da sinistra. Il valore accumulato viene aggiornato ad ogni passo.
+
+Come `foldr` ma accumula **da sinistra**. L'accumulatore viene aggiornato ad ogni passo senza aspettare la fine della lista.
+
+**Come funziona internamente:**
 
 ```haskell
 foldll f v []     = v
 foldll f v (x:xs) = foldll f (f v x) xs
-
--- foldl (+) 0 [1,2,3] → ((0+1)+2)+3 = 6  (associatività a SINISTRA)
 ```
+
+Ad ogni passo ricorsivo, la funzione viene **applicata subito** sull'accumulatore corrente:
+
+```
+foldl (+) 0 [1,2,3]
+  → foldl (+) (0+1) [2,3]
+  → foldl (+) ((0+1)+2) [3]
+  → foldl (+) (((0+1)+2)+3) []
+  → ((0+1)+2)+3                ← si accumula partendo da sinistra
+  → 6
+```
+
+Generalizzando: `foldl f v [a,b,c]` diventa `f (f (f v a) b) c`.
+
+### Confronto `foldr` vs `foldl`
+
+| | `foldr f z [a,b,c]` | `foldl f v [a,b,c]` |
+|---|---|---|
+| Espansione | `f a (f b (f c z))` | `f (f (f v a) b) c` |
+| Associatività | destra | sinistra |
+| Valuta prima | il fondo della lista | la testa della lista |
+| Liste infinite | funziona (lazy) | non termina |
+| Efficienza | meno efficiente su liste lunghe | più efficiente con accumulatore |
+
+> **Regola pratica:** usa `foldr` quando vuoi costruire una nuova lista o lavorare in modo lazy. Usa `foldl` (o meglio `foldl'` da `Data.List`) quando accumuli un valore su liste finite.
 
 ### Versioni point-free con `foldr`
 
@@ -342,6 +381,91 @@ checker_litee a =
 
 ---
 
+## 15. Composizione di Funzioni
+
+L'operatore `.` compone due funzioni: `(f . g) x` equivale a `f (g x)`. Permette di costruire pipeline eleganti senza nominare gli argomenti (stile **point-free**).
+
+```haskell
+-- Senza composizione
+isOdd x = not (even x)
+
+-- Con composizione
+oddd :: Int -> Bool
+oddd = not . even
+-- oddd 3 → not (even 3) → not False → True
+
+-- Pipeline più lunga
+inizialeMaiuscola :: String -> Char
+inizialeMaiuscola = toUpper . head
+-- prima head, poi toUpper
+```
+
+L'operatore `.` si legge "dopo": `not . even` significa "not *dopo* even". La lettura va **da destra a sinistra**.
+
+---
+
+## 16. `zipWith` — zip con Funzione
+
+`zipWith` è la generalizzazione di `zip`: invece di creare coppie, applica una funzione agli elementi corrispondenti delle due liste.
+
+```haskell
+zipWithh :: (a -> b -> c) -> [a] -> [b] -> [c]
+zipWithh f [] _        = []
+zipWithh f _ []        = []
+zipWithh f (a:b) (c:d) = f a c : zipWithh f b d
+
+-- Esempi
+zipWith (+) [1,2,3] [10,20,30]   -- [11,22,33]
+zipWith (*) [1,2,3] [4,5,6]      -- [4,10,18]
+
+-- Controlla se una lista è ordinata
+ordinato :: (Ord a) => [a] -> Bool
+ordinato a = and (zipWith (<=) a (tail a))
+-- [1,2,3] → zipWith (<=) [1,2,3] [2,3] → [True,True] → True
+
+-- Versione con all
+otherordinato :: (Ord a) => [a] -> Bool
+otherordinato a = all (== True) (zipWith (<=) a (tail a))
+```
+
+`zip` è il caso speciale `zipWith (,)`.
+
+---
+
+## 17. List Comprehension
+
+La **list comprehension** è una sintassi compatta per generare liste, ispirata alla notazione matematica degli insiemi. `{ x² | x ∈ [1..5] }` diventa `[x*x | x <- [1..5]]`.
+
+```haskell
+-- Sintassi base: [espressione | generatore, guardia]
+
+-- Quadrati dei pari
+[x*x | x <- [1..10], even x]
+-- [4,16,36,64,100]
+
+-- Coppie (x,y) con x <= y
+[(x,y) | x <- [1..3], y <- [x..3]]
+-- [(1,1),(1,2),(1,3),(2,2),(2,3),(3,3)]
+
+-- Tavola pitagorica n×n
+pitagorica n = [[x*y | x <- [1..n]] | y <- [1..n]]
+
+-- Prodotto cartesiano: l'ordine dei generatori conta!
+[(x,y) | y <- [4,5], x <- [1,2,3]]
+-- [(1,4),(2,4),(3,4),(1,5),(2,5),(3,5)]
+-- y varia più lentamente (è il generatore esterno)
+```
+
+Le list comprehension possono sempre essere riscritte con `map` e `filter`:
+
+| Comprehension | Equivalente |
+|---|---|
+| `[f x \| x <- xs]` | `map f xs` |
+| `[x \| x <- xs, p x]` | `filter p xs` |
+| `[f x \| x <- xs, p x]` | `map f (filter p xs)` |
+
+---
+
 ## Riepilogo — Funzioni Utili
 
 | Funzione | Descrizione |
@@ -354,10 +478,14 @@ checker_litee a =
 | `foldr f z xs` | Riduzione da destra (`z` = valore iniziale) |
 | `foldl f v xs` | Riduzione da sinistra (`v` = accumulatore) |
 | `zip xs ys` | Unisce due liste in lista di coppie |
+| `zipWith f xs ys` | Applica `f` agli elementi corrispondenti |
 | `elem x xs` | `True` se `x` appartiene a `xs` |
 | `fst` / `snd` | Primo / secondo elemento di una coppia |
 | `fromEnum` / `toEnum` | Conversione `Char` ↔ `Int` |
 | `logBase b x` | Logaritmo di `x` in base `b` |
+| `(f . g)` | Composizione: applica `g` poi `f` |
+| `all p xs` | `True` se tutti gli elementi soddisfano `p` |
+| `and xs` / `or xs` | AND / OR su lista di booleani |
 
 ---
 
@@ -369,6 +497,9 @@ Haskell è un linguaggio funzionale puro dove:
   - Il pattern matching rende il codice leggibile
   - Il currying permette l'applicazione parziale
   - I tipi garantiscono correttezza a compile-time
-  - foldr/foldl riducono liste a valori con piena flessibilità
-  - zip permette di lavorare su coppie di liste in parallelo
+  - foldr costruisce dal fondo: f a (f b (f c z))
+  - foldl accumula da sinistra: f (f (f v a) b) c
+  - zip/zipWith permettono di lavorare su coppie di liste in parallelo
+  - (.) compone funzioni in stile point-free
+  - Le list comprehension combinano map e filter in sintassi leggibile
 ```

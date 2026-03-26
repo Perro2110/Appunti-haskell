@@ -369,6 +369,8 @@ distanzaTuple (a,b) = sqrt ((((fst a) - (fst b))^2) + (((snd a) - (snd b))^2))
 distanza :: [(Float, Float)] -> Float
 distanza a = foldr (\x acc -> acc + distanzaTuple x) 0 (zip a (tail a))
 
+-- LIST COMPRENSION
+
 -- [(x,y) | y <- [4,5], x <- [1,2,3]]
 -- [(1,4),(2,4),(3,4),(1,5),(2,5),(3,5)] 
 
