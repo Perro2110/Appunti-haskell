@@ -349,15 +349,30 @@ maxff f (x:xs) a | f x >= a  = maxff f xs x
 -- foldrr f x [] = x 
 -- foldrr f x (a:b) = f a (foldrr f x b)
 
-maxfff :: Ord a => (t -> a) -> [t] -> t
-maxfff f (x:xs) = foldr (\a b -> if f a >= f b then a else b) x xs
+maxf f (a:b) = foldr (\x y -> if f x >= f y then x else y) a b 
 
 
-maxzip f x = fst (foldr1 (\a b -> if snd a >= snd b then a else b) (zip x (map f x)))
+remdups :: (Eq a) => [a] -> [a]
+remdups [] = []
+remdups [a] = [a]
+remdups (a:b:xs) | a == b    = remdups (b:xs)
+                 | otherwise = a : remdups (b:xs)   
 
-remdump :: Eq a => [a] -> [a]
-remdump [] = []
-remdump (a:b) = a : remdump (filter (\x -> x /= a) b)
+remdupsf :: (Eq a) => [a] -> [a]
+remdupsf [] = []
+remdupsf (a:as) = foldr (\x acc -> if x == head acc then acc else x:acc) [a] as
 
+
+distanzaTuple :: ((Float, Float),(Float, Float)) -> Float
+distanzaTuple (a,b) = sqrt ((((fst a) - (fst b))^2) + (((snd a) - (snd b))^2))
+
+distanza :: [(Float, Float)] -> Float
+distanza a = foldr (\x acc -> acc + distanzaTuple x) 0 (zip a (tail a))
+
+-- [(x,y) | y <- [4,5], x <- [1,2,3]]
+-- [(1,4),(2,4),(3,4),(1,5),(2,5),(3,5)] 
+
+-- [(x,y) | x <- [1..3], y <- [x..3]]
+-- [(1,1),(1,2),(1,3),(2,2),(2,3),(3,3)]
 
 pitagorica n = [[x*y | x <- [1..n] ]| y <- [1..n]]
