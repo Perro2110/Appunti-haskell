@@ -385,6 +385,10 @@ merge [] a = a
 merge (a:b) (c:d) | a < c       = a : merge b (c:d) 
                   | otherwise   = c : merge (a:b) d 
 
+mergeSort :: (Ord a) => [a] -> [a]
+mergeSort [] = []
+mergeSort [a] = [a]
+mergeSort a = let (l,r) = splitAt (length a `div` 2) a in merge (mergeSort l) (mergeSort r) 
 
 taxicab :: [Int]
 taxicab = [ n | n <- [1..] , length (coppie n) >= 2 ]
@@ -392,3 +396,42 @@ taxicab = [ n | n <- [1..] , length (coppie n) >= 2 ]
 coppie :: Int -> [(Int,Int)]
 coppie n = [ (x,y) | x <- [1..n] , y <- [x+1..n] , x^3 + y^3 == n ]
 
+--------------------------------------------------------------------------------
+--                          leazy evaluation                                  --
+--------------------------------------------------------------------------------
+
+-- Eager evaluation (or strict evaluation ) è un paradigma di valutazione in cui
+-- le espressioni vengono valutate non appena vengono incontrate, 
+-- indipendentemente dal fatto che il loro valore sia effettivamente necessario
+-- per il risultato finale del programma. In questo modello, tutte le operazioni 
+-- vengono eseguite immediatamente, e i risultati vengono memorizzati in variabili 
+-- o restituiti direttamente.
+
+
+uniq [] = []
+uniq (a:as) = a : filter (/= a) (uniq as)
+
+
+-- [x*2 | x -> _hamming]
+
+_hamming = 1 : merge (map (*2) hamming) 
+                      (merge (map (*3) hamming) (map (*5) hamming))
+
+hamming = uniq _hamming
+
+seggi :: Int -> [Int] -> [Int]
+seggi s voti = map contaSeggi [0..length voti - 1]
+  where
+    quozienti = [ (fromIntegral v / fromIntegral j, i)
+                | (v, i) <- zip voti [0..]
+                , j      <- [1..s] ]
+
+    top = take s
+        $ foldr (\(q,i) acc -> insertDesc (q,i) acc) [] quozienti
+
+    insertDesc x []     = [x]
+    insertDesc x (y:ys)
+      | fst x >= fst y  = x : y : ys
+      | otherwise        = y : insertDesc x ys
+
+    contaSeggi i = length $ filter ((== i) . snd) top
