@@ -378,3 +378,17 @@ distanza a = foldr (\x acc -> acc + distanzaTuple x) 0 (zip a (tail a))
 -- [(1,1),(1,2),(1,3),(2,2),(2,3),(3,3)]
 
 pitagorica n = [[x*y | x <- [1..n] ]| y <- [1..n]]
+
+merge :: (Ord a) => [a] -> [a] -> [a]
+merge a [] = a
+merge [] a = a
+merge (a:b) (c:d) | a < c       = a : merge b (c:d) 
+                  | otherwise   = c : merge (a:b) d 
+
+
+taxicab :: [Int]
+taxicab = [ n | n <- [1..] , length (coppie n) >= 2 ]
+
+coppie :: Int -> [(Int,Int)]
+coppie n = [ (x,y) | x <- [1..n] , y <- [x+1..n] , x^3 + y^3 == n ]
+
