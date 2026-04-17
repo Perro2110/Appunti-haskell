@@ -464,6 +464,264 @@ Le list comprehension possono sempre essere riscritte con `map` e `filter`:
 | `[x \| x <- xs, p x]` | `filter p xs` |
 | `[f x \| x <- xs, p x]` | `map f (filter p xs)` |
 
+### List comprehension su liste infinite
+
+La lazy evaluation permette di usare le list comprehension su sequenze infinite. Il trucco è abbinare un generatore `[1..]` a un predicato costoso: Haskell calcola solo gli elementi effettivamente richiesti.
+
+```haskell
+-- Numeri di Taxicab: esprimibili come somma di due cubi in almeno 2 modi
+taxicab :: [Int]
+taxicab = [ n | n <- [1..], length (coppie n) >= 2 ]
+
+coppie :: Int -> [(Int,Int)]
+coppie n = [ (x,y) | x <- [1..n], y <- [x+1..n], x^3 + y^3 == n ]
+
+-- take 3 taxicab → [1729, 4104, 13832]
+```
+
+---
+
+## 18. Lazy Evaluation
+
+Haskell usa la **valutazione pigra** (lazy): le espressioni vengono calcolate solo quando il loro valore è effettivamente necessario. Questo permette di definire strutture dati potenzialmente infinite.
+
+```haskell
+-- Lista infinita dei numeri di Hamming (divisibili solo per 2, 3 o 5)
+_hamming = 1 : merge (map (*2) hamming)
+                     (merge (map (*3) hamming) (map (*5) hamming))
+
+hamming = uniq _hamming
+
+-- take 10 hamming → [1,2,3,4,5,6,8,9,10,12]
+```
+
+La funzione `uniq` rimuove duplicati adiacenti (necessaria perché le tre sequenze `*2`, `*3`, `*5` possono produrre lo stesso valore):
+
+```haskell
+uniq [] = []
+uniq (a:as) = a : filter (/= a) (uniq as)
+```
+
+La lista `hamming` si definisce **in termini di se stessa**: è possibile perché Haskell non valuta l'intera lista, ma costruisce ogni elemento solo quando viene richiesto con `take`, `head`, ecc.
+
+**Eager vs lazy**: nella valutazione eager ogni espressione viene calcolata subito; in quella lazy viene creato un "thunk" (promessa di calcolo) che viene forzato solo quando necessario. Il vantaggio è poter lavorare con strutture infinite; lo svantaggio è un overhead di memoria se i thunk si accumulano senza essere consumati.
+
+---
+
+## 19. Rimozione di Duplicati
+
+### Duplicati consecutivi — `remdups`
+
+Rimuove solo i duplicati **adiacenti** (la lista deve essere ordinata perché sia utile come deduplicazione completa).
+
+```haskell
+remdups :: (Eq a) => [a] -> [a]
+remdups [] = []
+remdups [a] = [a]
+remdups (a:b:xs) | a == b    = remdups (b:xs)
+                 | otherwise = a : remdups (b:xs)
+
+-- remdups [1,1,2,2,2,3] → [1,2,3]
+-- remdups [1,2,1,2]     → [1,2,1,2]  (non ordinate rimangono!)
+```
+
+Versione con `foldr`:
+
+```haskell
+remdupsf :: (Eq a) => [a] -> [a]
+remdupsf [] = []
+remdupsf (a:as) = foldr (\x acc -> if x == head acc then acc else x:acc) [a] as
+```
+
+---
+
+## 20. Massimo con Funzione di Ordinamento
+
+`maxf` trova l'elemento che massimizza il valore prodotto da una funzione `f`, usando `foldr`:
+
+```haskell
+maxf :: (Ord b) => (a -> b) -> [a] -> a
+maxf f (a:b) = foldr (\x y -> if f x >= f y then x else y) a b
+
+-- Esempio: parola più lunga
+maxf length ["gatto","elefante","bue"]   -- "elefante"
+
+-- Numero con valore assoluto maggiore
+maxf abs [-10, 3, -5, 8]               -- -10
+```
+
+---
+
+## 21. Algoritmi di Ordinamento — Merge Sort
+
+Il **merge sort** è un algoritmo divide-et-impera: divide la lista a metà, ordina ricorsivamente ciascuna metà, poi le fonde mantenendo l'ordine.
+
+```haskell
+merge :: (Ord a) => [a] -> [a] -> [a]
+merge a [] = a
+merge [] a = a
+merge (a:b) (c:d) | a < c     = a : merge b (c:d)
+                  | otherwise = c : merge (a:b) d
+
+mergeSort :: (Ord a) => [a] -> [a]
+mergeSort []  = []
+mergeSort [a] = [a]
+mergeSort a   = let (l,r) = splitAt (length a `div` 2) a
+                in merge (mergeSort l) (mergeSort r)
+
+-- mergeSort [5,1,3,2,4] → [1,2,3,4,5]
+```
+
+`splitAt n xs` divide `xs` in due metà: i primi `n` elementi e il resto.
+
+---
+
+## 22. Calcolo di Distanze
+
+`distanza` calcola la lunghezza totale di un percorso dato come lista di punti `(Float, Float)`:
+
+```haskell
+distanzaTuple :: ((Float,Float),(Float,Float)) -> Float
+distanzaTuple (a,b) = sqrt (((fst a - fst b)^2) + ((snd a - snd b)^2))
+
+distanza :: [(Float,Float)] -> Float
+distanza a = foldr (\x acc -> acc + distanzaTuple x) 0 (zip a (tail a))
+
+-- distanza [(0,0),(3,0),(3,4)] → 7.0  (3 + 4)
+```
+
+`zip a (tail a)` produce le coppie di punti consecutivi; su ciascuna coppia si calcola la distanza euclidea, poi si sommano con `foldr`.
+
+---
+
+## 23. Automi a Stati Finiti Generici
+
+`generic_asf` modella un automa a stati finiti in modo generico: data una lista di input, uno stato iniziale, una **funzione di output** (Moore) e una **funzione di transizione di stato**, produce la lista di coppie `(output, nuovo_stato)`.
+
+```haskell
+generic_asf :: [a] -> s -> (a -> s -> o) -> (a -> s -> s) -> [(o, s)]
+generic_asf [] _ _ _                    = []
+generic_asf (leggo:leggero) stato msf snf =
+    (msf leggo stato, snf leggo stato)
+    : generic_asf leggero (snf leggo stato) msf snf
+```
+
+- `a` è il tipo dell'input (simbolo letto)
+- `s` è il tipo dello stato
+- `o` è il tipo dell'output
+- `msf` (Moore State Function) calcola l'output dato input e stato corrente
+- `snf` (State Next Function) calcola il nuovo stato
+
+Esempio di utilizzo con le funzioni `sfnPari` e `mfsPari` definite nel codice:
+
+```haskell
+sfnPari 0 x   = x      -- stato 0: rimane nello stesso stato
+sfnPari 1 'A' = 'B'    -- stato 1 con 'A': va in 'B'
+sfnPari 1 'B' = 'A'    -- stato 1 con 'B': va in 'A'
+```
+
+---
+
+## 24. Tipi di Dati Algebrici
+
+Haskell permette di definire nuovi tipi con la parola chiave `data`. Questi tipi possono essere **ricorsivi** e hanno **costruttori** che fungono da pattern.
+
+### Espressioni aritmetiche — `Expr`
+
+```haskell
+data Expr = Val Int
+          | Add Expr Expr
+          | Mul Expr Expr
+
+-- Esempio: (2 + 3) * 4
+esempio :: Expr
+esempio = Mul (Add (Val 2) (Val 3)) (Val 4)
+
+eval :: Expr -> Int
+eval (Val n)   = n
+eval (Add x y) = eval x + eval y
+eval (Mul x y) = eval x * eval y
+
+size :: Expr -> Int
+size (Val n)   = 1
+size (Add x y) = size x + size y
+size (Mul x y) = size x + size y
+
+-- eval esempio → 20
+-- size esempio → 3  (numero di Val nella struttura)
+```
+
+Il tipo `Expr` è ricorsivo: `Add` e `Mul` contengono a loro volta altri `Expr`. Il pattern matching sui costruttori permette di navigare la struttura ad albero in modo naturale.
+
+### Alberi binari — `Tree`
+
+```haskell
+data Tree a = Leaf a
+            | Node (Tree a) a (Tree a)
+
+-- Controlla se l'albero è bilanciato (ogni nodo ha 0 o 2 figli dello stesso tipo)
+is_binary_trees :: Tree a -> Bool
+is_binary_trees (Node (Node _ _ _) _ (Leaf _)) = False
+is_binary_trees (Node (Leaf _) _ (Node _ _ _)) = False
+is_binary_trees (Node (Leaf _) _ (Leaf _))     = True
+is_binary_trees (Node left _ right)            =
+    is_binary_trees left && is_binary_trees right
+```
+
+### Numeri naturali alla Peano — `Nat`
+
+Una rappresentazione puramente strutturale dei numeri naturali: `Zero` corrisponde a 0, `Succ n` corrisponde a `n + 1`.
+
+```haskell
+data Nat = Zero | Succ Nat
+    deriving (Show)
+
+nat2int :: Nat -> Int
+nat2int Zero     = 0
+nat2int (Succ n) = 1 + nat2int n
+
+int2nat :: Int -> Nat
+int2nat 0 = Zero
+int2nat n = Succ (int2nat (n-1))
+
+-- Addizione ricorsiva
+add :: Nat -> Nat -> Nat
+add m n = int2nat (nat2int m + nat2int n)
+
+-- Moltiplicazione ricorsiva (senza conversione)
+multy :: Nat -> Nat -> Nat
+multy n Zero     = Zero
+multy n (Succ m) = add n (multy n m)
+-- n * (Succ m)  =  n + n*m   (definizione ricorsiva standard)
+```
+
+`multy` mostra come si possa definire la moltiplicazione ricorsivamente senza mai convertire in `Int`: `n * 0 = 0` e `n * (m+1) = n + n*m`.
+
+---
+
+## 25. Applicazione: Metodo D'Hondt
+
+Il **metodo D'Hondt** è un algoritmo proporzionale per l'assegnazione di seggi parlamentari. Per ogni partito si calcolano i quozienti `voti / 1`, `voti / 2`, `voti / 3`, … e si assegnano i seggi ai quozienti più alti.
+
+```haskell
+-- Genera la sequenza infinita di quozienti per ciascun partito
+dHondt h = [ [(div v j, j) | v <- vs, j <- [1..]] | vs <- h ]
+
+-- Assegna n seggi dato un insieme di quozienti (lista di liste ordinate)
+seggii :: Int -> [[(Int, Int, Int)]] -> [(Int, Int, Int)]
+seggii n h = take n . foldl1 merge $ zipWith tag h [1..]
+  where
+    tag xs i = map (\(x,j) -> (x,j,i)) xs
+    merge [] ys = ys
+    merge xs [] = xs
+    merge (x:xs) (y:ys)
+      | fst3 x >= fst3 y = x : merge xs (y:ys)
+      | otherwise        = y : merge (x:xs) ys
+    fst3 (v,_,_) = v
+```
+
+La funzione `seggi` nel codice usa un approccio alternativo con `foldr` per costruire una classifica ordinata dei quozienti, poi conta quanti seggi finiscono a ciascun partito.
+
 ---
 
 ## Riepilogo — Funzioni Utili
@@ -479,6 +737,7 @@ Le list comprehension possono sempre essere riscritte con `map` e `filter`:
 | `foldl f v xs` | Riduzione da sinistra (`v` = accumulatore) |
 | `zip xs ys` | Unisce due liste in lista di coppie |
 | `zipWith f xs ys` | Applica `f` agli elementi corrispondenti |
+| `splitAt n xs` | Divide la lista al punto `n` |
 | `elem x xs` | `True` se `x` appartiene a `xs` |
 | `fst` / `snd` | Primo / secondo elemento di una coppia |
 | `fromEnum` / `toEnum` | Conversione `Char` ↔ `Int` |
@@ -486,6 +745,8 @@ Le list comprehension possono sempre essere riscritte con `map` e `filter`:
 | `(f . g)` | Composizione: applica `g` poi `f` |
 | `all p xs` | `True` se tutti gli elementi soddisfano `p` |
 | `and xs` / `or xs` | AND / OR su lista di booleani |
+| `take n xs` | Primi `n` elementi |
+| `drop n xs` | Lista senza i primi `n` elementi |
 
 ---
 
@@ -502,4 +763,7 @@ Haskell è un linguaggio funzionale puro dove:
   - zip/zipWith permettono di lavorare su coppie di liste in parallelo
   - (.) compone funzioni in stile point-free
   - Le list comprehension combinano map e filter in sintassi leggibile
+  - La lazy evaluation permette liste e strutture infinite
+  - I tipi algebrici (data) modellano strutture ricorsive come alberi ed espressioni
+  - I numeri di Peano mostrano come l'aritmetica possa derivare dalla struttura
 ```

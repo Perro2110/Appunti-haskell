@@ -435,3 +435,98 @@ seggi s voti = map contaSeggi [0..length voti - 1]
       | otherwise        = y : insertDesc x ys
 
     contaSeggi i = length $ filter ((== i) . snd) top
+
+--------------------------------------------------------------------------------
+
+dHondt h = [ [(div v j, j) | v <- vs, j <- [1..]] | vs <- h ]
+
+
+seggii :: Int -> [[(Int, Int)]] -> [(Int, Int, Int)]
+seggii n h = take n . foldl1 merge $ zipWith tag h [1..]
+  where
+    tag xs i = map (\(x,j) -> (x,j,i)) xs
+    merge [] ys = ys
+    merge xs [] = xs
+    merge (x:xs) (y:ys)
+      | fst3 x >= fst3 y = x : merge xs (y:ys)
+      | otherwise         = y : merge (x:xs) ys
+    fst3 (v,_,_) = v
+
+
+--------------------------------------------------------------------------------
+
+
+
+--sfnPari c S 
+sfnPari 0 x = x
+sfnPari 1 'A' = 'B'
+sfnPari 1 'B' = 'A' 
+
+mfsPari 1 'A' = 'd'
+mfsPari 0 'A' = 'p'
+mfsPari 1 'B' = 'p'
+mfsPari 0 'B' = 'd'
+
+
+generic_asf:: [a] -> s -> (a->s->o) -> (a -> s -> s) -> [(o, s)]
+generic_asf [] _ _ _ = []
+generic_asf (leggo:leggero) stato msf snf = (msf leggo stato, snf leggo stato) : generic_asf leggero (snf leggo stato) msf snf
+
+
+--------------------------------------------------------------------------------
+
+
+-- Val :: Int -> Expr
+-- Add :: Expr -> Expr -> Expr
+-- Mul :: Expr -> Expr -> Expr
+
+data Tree a = Leaf a 
+            | Node (Tree a) a (Tree a)
+
+is_binary_trees :: Tree a -> Bool
+is_binary_trees (Node (Node _ _ _) _ (Leaf _)) = False
+is_binary_trees (Node (Leaf _) _ (Node _ _ _)) = False
+is_binary_trees (Node (Leaf _) _ (Leaf _)) = True
+is_binary_trees (Node left _ right) = is_binary_trees left && is_binary_trees right
+
+t:: Tree Int
+t = Node (Node (Leaf 1) 3 ((Node (Leaf 6) 7 (Leaf 9)))) 5 (Node (Leaf 6) 7 (Leaf 9))
+
+
+size :: Expr -> Int
+size (Val n) = 1
+size (Add x y) = size x + size y
+size (Mul x y) = size x + size y
+
+eval :: Expr -> Int
+eval (Val n) = n
+eval (Add x y) = eval x + eval y
+eval (Mul x y) = eval x * eval y
+
+data Expr = Val Int
+            | Add Expr Expr
+            | Mul Expr Expr
+
+
+add :: Nat -> Nat -> Nat
+add m n = int2nat (nat2int m + nat2int n)
+
+mult :: Nat -> Nat -> Nat
+mult m n = int2nat (nat2int m * nat2int n)
+
+multy :: Nat -> Nat -> Nat
+multy n Zero     = Zero
+multy n (Succ m) = add n (multy n m)  
+
+
+nat2int :: Nat -> Int
+nat2int Zero = 0
+nat2int (Succ n) = 1 + nat2int n
+
+int2nat :: Int -> Nat
+int2nat 0 = Zero
+int2nat n = Succ (int2nat (n-1))
+
+data Nat = Zero | Succ Nat
+    deriving (Show) 
+
