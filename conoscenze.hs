@@ -545,7 +545,7 @@ prendiString (Regola _ s) = s
 
 -- definisco un esmepio di regola
 regolaEsempio :: Regola
-regolaEsempio = Regola "A" "bc"
+regolaEsempio = Regola "Z" "zucchero"
 
 
 genera :: [Regola] -> [Char] -> [Char]
