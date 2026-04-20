@@ -530,3 +530,27 @@ int2nat n = Succ (int2nat (n-1))
 data Nat = Zero | Succ Nat
     deriving (Show) 
 
+--------------------------------------------------------------------------------
+-- La regola deve essere fatto da un char e una stringa 
+
+data Regola = Regola [Char] [Char]
+    deriving (Show)
+
+
+prendiChar :: Regola -> [Char]
+prendiChar (Regola c _) = c
+
+prendiString :: Regola -> [Char]
+prendiString (Regola _ s) = s
+
+-- definisco un esmepio di regola
+regolaEsempio :: Regola
+regolaEsempio = Regola "A" "bc"
+
+
+genera :: [Regola] -> [Char] -> [Char]
+genera [] str = str
+genera _ [] = []
+genera (r:regole) (a:b)
+    | prendiChar r == [a] = prendiString r ++ genera (r:regole) b
+    | otherwise           = genera regole (a:b)
